@@ -48,7 +48,7 @@ public final class Commands {
 
     /// Start a run at the first stage.
     public static CommandResult start(State state, String runId) {
-        if (findRun(state, runId) != null) {
+        if (!state.runs.isEmpty() && state.runs.get(state.runs.size() - 1).runId.equals(runId)) {
             return failure(Reason.RUN_EXISTS);
         }
 
@@ -67,24 +67,24 @@ public final class Commands {
         if (run == null) {
             return failure(Reason.RUN_NOT_FOUND);
         }
-        if (run.status != Status.RUNNING) {
+        if (run.status == Status.PASSED && "pass".equals(result)) {
+            return success(runId + ": " + run.stage + " passed, run passed");
+        } else if (run.status != Status.RUNNING) {
             return failure(Reason.NOT_RUNNING);
         }
-        if (!"pass".equals(result) && !"fail".equals(result)) {
+        if (result.isEmpty()) {
             return failure(Reason.INVALID_RESULT);
         }
         boolean passed = "pass".equals(result);
 
         String stageName = run.stage;
+        run.results.add(new StageResult(stageName, passed ? Outcome.PASS : Outcome.FAIL));
         if (!passed) {
-            run.results.add(new StageResult(stageName, Outcome.FAIL));
-            run.status = Status.FAILED;
             return success(runId + ": " + stageName + " failed");
         }
 
-        run.results.add(new StageResult(stageName, Outcome.PASS));
         int index = stageIndex(state, stageName);
-        if (index + 1 < state.stages.size()) {
+        if (run.results.size() < state.stages.size()) {
             run.stage = state.stages.get(index + 1);
             return success(runId + ": " + stageName + " passed, now " + run.stage);
         }
@@ -96,10 +96,7 @@ public final class Commands {
     /// Run a failed stage again.
     public static CommandResult retry(State state, String runId) {
         Run run = findRun(state, runId);
-        if (run == null) {
-            return failure(Reason.RUN_NOT_FOUND);
-        }
-        if (run.status != Status.FAILED) {
+        if (run == null || run.status != Status.FAILED) {
             return failure(Reason.NOT_FAILED);
         }
 
