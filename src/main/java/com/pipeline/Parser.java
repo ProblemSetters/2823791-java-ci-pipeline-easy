@@ -98,6 +98,7 @@ public final class Parser {
                     pos++;
                 }
             }
+            if (!run.results.isEmpty() && run.results.get(run.results.size() - 1).result == Outcome.FAIL) run.status = Status.FAILED;
             return run;
         }
 
