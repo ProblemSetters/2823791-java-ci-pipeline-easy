@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BIN="${ROOT}/target/appassembler/bin/pipeline"
+
+cd "$ROOT"
+if [[ ! -x "$BIN" ]]; then
+  mvn -B -ntp -DskipTests package
+fi
+
+if [[ -x "$BIN" ]]; then
+  exec "$BIN" "$@"
+else
+  exec java -cp "target/classes:target/dependency/*" com.pipeline.Main "$@"
+fi

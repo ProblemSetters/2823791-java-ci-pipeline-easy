@@ -1,0 +1,26 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Java: Pipeline",
+      "request": "launch",
+      "mainClass": "com.pipeline.Main",
+      "args": "start R48",
+      "cwd": "${workspaceFolder}",
+      "console": "internalConsole",
+      "stopOnEntry": false,
+      "presentation": {
+        "hidden": true
+      },
+      "preLaunchTask": "build"
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Debug Pipeline",
+      "configurations": ["Java: Pipeline"],
+      "stopAll": true
+    }
+  ]
+}

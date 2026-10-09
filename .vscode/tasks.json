@@ -1,0 +1,43 @@
+{
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Install",
+      "command": "bash -lc \"mvn -B -ntp -DskipTests package\"",
+      "args": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "build",
+      "command": "bash -lc \"mvn -B -ntp -DskipTests compile\"",
+      "args": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Run",
+      "command": "bash run.sh",
+      "args": [],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      }
+    },
+    {
+      "type": "shell",
+      "label": "Test",
+      "command": "bash -lc \"bash test.sh\"",
+      "args": [],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "scoringFilePaths": [
+          "junit.xml"
+        ]
+      }
+    }
+  ]
+}

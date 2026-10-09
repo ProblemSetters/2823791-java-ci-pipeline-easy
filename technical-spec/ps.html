@@ -1,0 +1,178 @@
+<p dir="ltr">Every code push starts a pipeline run that goes through build, test, and deploy, in that order. A run moves to the next stage only when the current stage passes, and a failed stage stops the run until someone retries it, so nothing is deployed unless every earlier stage has passed. If a failed stage does not stop the run, a retry continues from the wrong stage, or a finished run can be started again, broken code can reach production and the run history no longer shows what really passed.</p>
+
+<p dir="ltr"><br />
+Your task is to fix the CI pipeline tool so that every command updates the data correctly and prints the correct success message or error reason.</p>
+
+<p dir="ltr"><br />
+<strong>State File</strong></p>
+
+<p dir="ltr"><strong>File: <span style="font-family:Courier New , Courier , monospace;">data/pipeline.json</span></strong></p>
+
+<p dir="ltr">For example:</p>
+
+<pre>
+<code class="language-json">{
+  &quot;stages&quot;: [&quot;build&quot;,&quot;test&quot;,&quot;deploy&quot;],
+  &quot;runs&quot;: [
+    {
+      &quot;run&quot;: &quot;R41&quot;,
+      &quot;stage&quot;: &quot;deploy&quot;,
+      &quot;status&quot;: &quot;passed&quot;,
+      &quot;results&quot;: [
+        {&quot;stage&quot;:&quot;build&quot;,&quot;result&quot;:&quot;pass&quot;},
+        {&quot;stage&quot;:&quot;test&quot;,&quot;result&quot;:&quot;pass&quot;},
+        {&quot;stage&quot;:&quot;deploy&quot;,&quot;result&quot;:&quot;pass&quot;}
+      ]
+    },
+    {
+      &quot;run&quot;: &quot;R42&quot;,
+      &quot;stage&quot;: &quot;test&quot;,
+      &quot;status&quot;: &quot;failed&quot;,
+      &quot;results&quot;: [
+        {&quot;stage&quot;:&quot;build&quot;,&quot;result&quot;:&quot;pass&quot;},
+        {&quot;stage&quot;:&quot;test&quot;,&quot;result&quot;:&quot;fail&quot;}
+      ]
+    }
+  ]
+}</code></pre>
+
+<p dir="ltr">Fields:</p>
+
+<ul>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation"><span style="font-family:Courier New , Courier , monospace;">stages</span> (list of strings): the stages every run goes through, in order.</p>
+	</li>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation"><span style="font-family:Courier New , Courier , monospace;">runs</span> (list): every run, in the order started.</p>
+
+	<ul>
+		<li aria-level="2" dir="ltr">
+		<p dir="ltr" role="presentation"><span style="font-family:Courier New , Courier , monospace;">run</span> (string): the run id, unique.</p>
+		</li>
+		<li aria-level="2" dir="ltr">
+		<p dir="ltr" role="presentation"><span style="font-family:Courier New , Courier , monospace;">stage</span> (string): the stage the run is at.</p>
+		</li>
+		<li aria-level="2" dir="ltr">
+		<p dir="ltr" role="presentation"><span style="font-family:Courier New , Courier , monospace;">status</span> (string): <span style="font-family:Courier New , Courier , monospace;">running</span>, <span style="font-family:Courier New , Courier , monospace;">failed</span>, or <span style="font-family:Courier New , Courier , monospace;">passed</span>.</p>
+		</li>
+		<li aria-level="2" dir="ltr">
+		<p dir="ltr" role="presentation"><span style="font-family:Courier New , Courier , monospace;">results</span> (list): every stage result so far, oldest first, with <span style="font-family:Courier New , Courier , monospace;">stage</span> and <span style="font-family:Courier New , Courier , monospace;">result</span> (<span style="font-family:Courier New , Courier , monospace;">pass</span> or <span style="font-family:Courier New , Courier , monospace;">fail</span>).</p>
+		</li>
+	</ul>
+	</li>
+</ul>
+
+<p dir="ltr">When writing <span style="font-family:Courier New , Courier , monospace;">data/pipeline.json</span> back, preserve the field order shown above, and keep runs and results in the order they appear in the file.</p>
+
+<p dir="ltr"><br />
+<strong>Command Output</strong></p>
+
+<p dir="ltr">Each command prints a one-line result on success, or <span style="font-family:Courier New , Courier , monospace;">Error: &lt;REASON&gt;</span> on failure. Its rules are checked in the order listed, stopping at the first failure, and on failure <span style="font-family:Courier New , Courier , monospace;">data/pipeline.json</span> is not modified.</p>
+
+<p dir="ltr"><br />
+<strong>Commands</strong></p>
+
+<p dir="ltr"><br />
+<strong><span style="font-family:Courier New , Courier , monospace;">start</span></strong></p>
+
+<p dir="ltr">Starts a new run at the first stage.</p>
+
+<p dir="ltr"><strong>Usage</strong></p>
+
+<pre>
+<code>./pipeline start &lt;run&gt;</code></pre>
+
+<p dir="ltr"><strong>Output</strong></p>
+
+<pre>
+<code>&lt;run&gt; started: &lt;stage&gt;</code></pre>
+
+<p dir="ltr"><strong>Rules</strong></p>
+
+<ul>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">If a run with that id exists, fail with <span style="font-family:Courier New , Courier , monospace;">RUN_EXISTS</span>.</p>
+	</li>
+</ul>
+
+<p dir="ltr">On success, append the run as <span style="font-family:Courier New , Courier , monospace;">running</span> at the first stage with no results.</p>
+
+<p dir="ltr"><br />
+<strong><span style="font-family:Courier New , Courier , monospace;">stage</span></strong></p>
+
+<p dir="ltr">Records whether the run&#x27;s current stage passed or failed.</p>
+
+<p dir="ltr"><strong>Usage</strong></p>
+
+<pre>
+<code>./pipeline stage &lt;run&gt; &lt;pass|fail&gt;</code></pre>
+
+<p dir="ltr"><strong>Output</strong></p>
+
+<pre>
+<code>&lt;run&gt;: &lt;stage&gt; passed, now &lt;next_stage&gt;
+&lt;run&gt;: &lt;stage&gt; passed, run passed
+&lt;run&gt;: &lt;stage&gt; failed</code></pre>
+
+<p dir="ltr"><strong>Rules</strong></p>
+
+<p dir="ltr">Check these rules in order and stop at the first failure:</p>
+
+<ul>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">If no run has that id, fail with <span style="font-family:Courier New , Courier , monospace;">RUN_NOT_FOUND</span>.</p>
+	</li>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">If the run is not <span style="font-family:Courier New , Courier , monospace;">running</span>, fail with <span style="font-family:Courier New , Courier , monospace;">NOT_RUNNING</span>.</p>
+	</li>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">If the result is not <span style="font-family:Courier New , Courier , monospace;">pass</span> or <span style="font-family:Courier New , Courier , monospace;">fail</span>, fail with <span style="font-family:Courier New , Courier , monospace;">INVALID_RESULT</span>.</p>
+	</li>
+</ul>
+
+<p dir="ltr">On success:</p>
+
+<ul>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">Append the result to the run.</p>
+	</li>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">A pass moves the run to the next stage, or sets <span style="font-family:Courier New , Courier , monospace;">passed</span> after the last stage.</p>
+	</li>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">A fail sets <span style="font-family:Courier New , Courier , monospace;">failed</span> and the run stays at that stage.</p>
+	</li>
+</ul>
+
+<p dir="ltr"><br />
+<strong><span style="font-family:Courier New , Courier , monospace;">retry</span></strong></p>
+
+<p dir="ltr">Restarts a failed run at the stage that failed.</p>
+
+<p dir="ltr"><strong>Usage</strong></p>
+
+<pre>
+<code>./pipeline retry &lt;run&gt;</code></pre>
+
+<p dir="ltr"><strong>Output</strong></p>
+
+<pre>
+<code>&lt;run&gt;: retrying &lt;stage&gt;</code></pre>
+
+<p dir="ltr"><strong>Rules</strong></p>
+
+<p dir="ltr">Check these rules in order and stop at the first failure:</p>
+
+<ul>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">If no run has that id, fail with <span style="font-family:Courier New , Courier , monospace;">RUN_NOT_FOUND</span>.</p>
+	</li>
+	<li aria-level="1" dir="ltr">
+	<p dir="ltr" role="presentation">If the run is not <span style="font-family:Courier New , Courier , monospace;">failed</span>, fail with <span style="font-family:Courier New , Courier , monospace;">NOT_FAILED</span>.</p>
+	</li>
+</ul>
+
+<p dir="ltr">On success, set <span style="font-family:Courier New , Courier , monospace;">running</span> at the same stage; earlier results are kept.</p>
+
+<p><br />
+<strong>Note</strong>: Refer to <span style="font-family:Courier New , Courier , monospace;">README.md</span> for more details and examples.</p>
