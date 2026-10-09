@@ -1,0 +1,27 @@
+# IDE
+.idea/
+
+# Build
+target/
+
+# Test output
+junit.xml
+report.xml
+
+# Release archives
+*.zip
+
+# Local-only design docs
+BUG_MAPPING.md
+fullReadme.md
+/ps.html
+/ps.md
+/ig.html
+/tags.md
+
+# Library track: the upload artifacts ARE tracked inside technical-spec/
+!technical-spec/**
+
+# OS files
+.DS_Store
+Thumbs.db

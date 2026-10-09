@@ -1,0 +1,20 @@
+version: 1.0
+configuration:
+    has_webserver: false
+    readonly_paths:
+        - README.md
+        - src/test/java/com/pipeline/CommandsTest.java
+        - data/pipeline.json
+    scoring:
+        command: bash -lc "bash test.sh"
+        files:
+            - junit.xml
+    ide_config:
+        default_open_files:
+            - src/main/java/com/pipeline/Commands.java
+            - src/main/java/com/pipeline/Parser.java
+            - README.md
+        project_menu:
+            install: bash -lc "mvn -q -DskipTests package"
+            run: bash run.sh
+            test: bash -lc "bash test.sh"

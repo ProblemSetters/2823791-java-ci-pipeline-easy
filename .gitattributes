@@ -1,0 +1,4 @@
+# The candidate package is cut with `git archive <branch>`; everything below is
+# team-facing only and must never reach a candidate's workspace.
+technical-spec/ export-ignore
+.gitattributes export-ignore
