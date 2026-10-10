@@ -29,7 +29,7 @@ Your task is to fix the CI pipeline tool so that every command updates the data 
 ### Install
 
 ```bash
-mvn -q -DskipTests package
+mvn -B -ntp -DskipTests package
 ```
 
 ### Run

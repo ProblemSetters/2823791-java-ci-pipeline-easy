@@ -6,7 +6,7 @@ cd "$SCRIPT_DIR"
 
 mkdir -p data
 
-mvn -q -DskipTests package 2>&1
+mvn -B -ntp -DskipTests package 2>&1
 
 echo ""
 echo "State file: data/pipeline.json"

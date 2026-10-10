@@ -27,12 +27,17 @@ class CommandsTest {
         assertEquals(expectedJson, got, "pipeline state mismatch");
     }
 
+    /// Build a State from a data/pipeline.json document.
+    private State makeState(String pipelineDoc) {
+        return Parser.parsePipelineJson(pipelineDoc);
+    }
+
     /// start appends a running run at the first stage with no results, reports an id that is
     /// already on file whether that run is still going, has passed, or has failed, and treats
     /// a shorter id as its own run.
     @Test
     void test_start_opens_a_run_at_the_first_stage() {
-        State state = Parser.parsePipelineJson("""
+        State state = makeState("""
 {
   "stages": ["build","test","deploy"],
   "runs": [
@@ -69,7 +74,7 @@ class CommandsTest {
     /// stage that follows it, leaving every other run where it was.
     @Test
     void test_stage_pass_moves_the_run_to_the_next_stage() {
-        State state = Parser.parsePipelineJson("""
+        State state = makeState("""
 {
   "stages": ["build","test","deploy"],
   "runs": [
@@ -100,7 +105,7 @@ class CommandsTest {
     /// finished run takes no further results.
     @Test
     void test_stage_pass_on_the_last_stage_finishes_the_run() {
-        State state = Parser.parsePipelineJson("""
+        State state = makeState("""
 {
   "stages": ["build","test","deploy"],
   "runs": [
@@ -131,7 +136,7 @@ class CommandsTest {
     /// takes no further results until someone retries it.
     @Test
     void test_stage_fail_stops_the_run() {
-        State state = Parser.parsePipelineJson("""
+        State state = makeState("""
 {
   "stages": ["build","test","deploy"],
   "runs": [
@@ -160,7 +165,7 @@ class CommandsTest {
     /// reports an id that is not on file, and leaves every run untouched on each refusal.
     @Test
     void test_stage_rejects_a_result_that_is_not_pass_or_fail() {
-        State state = Parser.parsePipelineJson("""
+        State state = makeState("""
 {
   "stages": ["build","test","deploy"],
   "runs": [
@@ -208,7 +213,7 @@ class CommandsTest {
     /// refuses a run that is not failed or not on file, and works again after a second failure.
     @Test
     void test_retry_runs_the_failed_stage_again() {
-        State state = Parser.parsePipelineJson("""
+        State state = makeState("""
 {
   "stages": ["build","test","deploy"],
   "runs": [
